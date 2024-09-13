@@ -1,8 +1,8 @@
 # Import required libraries
 import pandas as pd
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 from dash.dependencies import Input, Output
 import plotly.express as px
 
@@ -44,7 +44,7 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
                                 dcc.RangeSlider(id='payload-slider',
                                     min=0, max=10000, step=1000,
                                     marks={0:'0', 2000: '2000', 4000: '4000', 6000:'6000', 8000:'8000', 10000:'10000'},
-                                    value=[min_payload, max_payload]),
+                                    value=[0, 10000]),
 
                                 # TASK 4: Add a scatter chart to show the correlation between payload and launch success
                                 html.Div(dcc.Graph(id='success-payload-scatter-chart')),
@@ -78,15 +78,15 @@ def get_pie_chart(entered_site):
 def get_scatter_chart(entered_site, payload_mass_range):
     filtered_df = spacex_df
     if entered_site == 'ALL':
+        filtered_df = spacex_df[(spacex_df['Payload Mass (kg)'] >= payload_mass_range[0]) & (spacex_df['Payload Mass (kg)'] <= payload_mass_range[1])]
         fig = px.scatter(filtered_df, x='Payload Mass (kg)', y='class', 
         color="Booster Version Category",
         title='Launch outcomes vs payload and booster version for all sites')
         return fig
     else:
         # return the scatter plot for entered site and payload mass values
-        filtered_df = spacex_df[(spacex_df['Launch Site'] == entered_site) &
-            (spacex_df['Payload Mass (kg)'] >= payload_mass_range[0]) & (spacex_df['Payload Mass (kg)'] <= payload_mass_range[1])]
-        filtered_df = spacex_df[['Payload Mass (kg)', 'class', 'Booster Version Category']]
+        filtered_df = spacex_df[(spacex_df['Launch Site'] == entered_site) & (spacex_df['Payload Mass (kg)'] >= payload_mass_range[0]) & (spacex_df['Payload Mass (kg)'] <= payload_mass_range[1])]
+        filtered_df = filtered_df[['Payload Mass (kg)', 'class', 'Booster Version Category']]
         fig = px.scatter(filtered_df, x='Payload Mass (kg)', y='class', 
         color="Booster Version Category",
         title='Launch outcome vs payload and booster version for site ' + entered_site)
